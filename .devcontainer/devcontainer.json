@@ -1,9 +1,9 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/markdown
 {
-	"name": "2024-ai-tf-oci-devcon",
+	"name": "2024-ai-tf-pip-oci-devcon-0005",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "localhost/2024-ai-tf-oci-devcon:0001",
+	"image": "localhost/2024-ai-tf-pip-oci-devcon:0005",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

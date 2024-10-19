@@ -55,6 +55,8 @@ buildah run $cname -- bash -i -c "conda run -n $ename pip install plotly.express
 buildah commit $cname $cname-devcon:0001
 
 ## how to run it
-conda activate ai-tf-lab
 jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+
+# get tokens
+jupyter server list
 

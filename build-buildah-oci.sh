@@ -2,6 +2,7 @@ source ./build-buildah-oci.conf
 
 cdeps="\
 jupyterlab \
+plotly \
 scikit-learn \
 lightgbm \
 pyproj \
@@ -13,12 +14,12 @@ openpyxl \
 
 #tensorflow-cpu=2.10.0 \
 
-pdeps="plotly.express"
+#pdeps="plotly.express"
 echo cname=$cname
 echo ename=$ename
 echo pver=$pver
-echo pdeps=$cdeps
-echo pdeps=$pdeps
+echo cdeps=$cdeps
+#echo pdeps=$pdeps
 
 make_conda_container(){
 
@@ -49,10 +50,6 @@ make_conda_env() {
 
 buildah run $cname -- bash -i -c "conda  create -y --name $ename python=$pyver"
 
-buildah run $cname -- bash -i -c "conda --version"
-
-buildah run $cname -- bash -i -c "conda  create -y --name $ename python=$pyver"
-
 buildah run $cname -- bash -i -c "conda env list"
 
 buildah run $cname -- bash -i -c "conda install -y -n $ename -c conda-forge $cdeps"
@@ -64,6 +61,9 @@ buildah run $cname -- bash -i -c "conda install -y -n $ename -c conda-forge $cde
 make_conda_env
 
 #buildah commit $cname $cname-devcon:0001
+#buildah commit $cname $cname-devcon:0002
+#buildah commit $cname $cname-devcon:0003
+#buildah commit $cname $cname-devcon:0004
 
 # buildah run $cname -- bash -i -c "conda env remove -n $ename"
 
