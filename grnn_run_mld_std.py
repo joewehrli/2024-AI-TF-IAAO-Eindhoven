@@ -20,7 +20,7 @@ X_train_scaled = scaler.fit_transform(X_train)
 
 ##
 # GRNN linear form data
-ld_grnn_Eindhoven = grnn.GRNN(sigma=0.7507414829659319) #by grid
+ld_grnn_Eindhoven = grnn.GRNN(sigma=0.5336842105263158) #by grid
 ld_grnn_Eindhoven.fit(X_train_scaled, y_train)
 #ld_grnn_Eindhoven.fit(Eindhoven_data_Train_Feat_linear,
 #             Eindhoven_data_Train[Model_Outcome].values.ravel()
@@ -41,7 +41,6 @@ y_pred = ld_grnn_Eindhoven.predict(X_test_scaled)
 Eindhoven_data_Test = test_combined_grnn_df
 print("mlencoded TEST data GRNN R Squared :", r2_score(  Eindhoven_data_Test[Model_Outcome], y_pred ))
 
-"""
 #####
 # optimize
 
@@ -57,7 +56,7 @@ def eval_fn(param):
     return mse
 
 ld_grnn_search = grnn.GRNNsearch()
-search_sigma = ld_grnn_search.binary(eval_fn,low=.001,high=50)
+search_sigma = ld_grnn_search.binary(eval_fn,low=.001,high=1.0,tolerance=1e-2)
 print(search_sigma)
 
 # GRNN linear form data
@@ -71,8 +70,8 @@ ld_grnn_Eindhoven.fit(X_train_scaled, y_train)
 y_pred = ld_grnn_Eindhoven.predict(X_test_scaled)
 
 Eindhoven_data_Test = test_combined_grnn_df
-print("mlencoded data GRNN R Squared :", r2_score(  Eindhoven_data_Test[Model_Outcome], y_pred ))
-"""
+print("mlencoded TEST data GRNN R Squared :", r2_score(  Eindhoven_data_Test[Model_Outcome], y_pred ))
+
 
 
 """
@@ -81,7 +80,8 @@ from sklearn.model_selection import GridSearchCV
 
 # Define the parameter grid for sigma
 param_grid = {
-    'sigma': np.linspace(0.01, 10, 500)  # Testing 500 values of sigma between 0.01 and 5
+#    'sigma': np.linspace(0.01, 2, 20)  # Testing (X,Y,k) K points internal
+    'sigma': np.linspace(0.5, 0.6, 20)  # Testing (X,Y,k) K points internal
 }
 
 scorer = make_scorer(mean_squared_error, greater_is_better=False)
@@ -109,6 +109,13 @@ print("GRID mlencoded TEST data GRNN R Squared :", r2_score(  Eindhoven_data_Tes
 """
 
 """
+after code calc refactoring
+0.5336842105263158
+GRID mlencoded TEST data GRNN R Squared : 0.6323461478292063
+"""
+
+"""
+#before code calc refactoring
 0.7507414829659319
 GRID mlencoded TEST data GRNN R Squared : 0.6315975945497223
 """

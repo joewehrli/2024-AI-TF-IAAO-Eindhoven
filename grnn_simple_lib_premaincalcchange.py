@@ -34,17 +34,17 @@ class GRNN:
         if np.isnan(np_obj).any():
             raise ValueError(f'NaN check in np obj {context}')
         
-    def dist2_calc(x,X_i):
-        # distance
+    def adj_dist_calc(x,X_i,sigma):
         diff = X_i - x
         distance_squared = np.dot(diff, diff)    
-        return distance_squared
+        adj_dist = distance_squared / sigma
+        return adj_dist
 
     def pi_calc(x,X_i,sigma): #not vectorized, just check one pred
-        # distance
+        # Calculate the squared Euclidean distance
         diff = X_i - x
         distance_squared = np.dot(diff, diff)
-        # Gaussian K
+        # Calculate the Gaussian function
         pi = np.exp(-distance_squared / (2 * sigma ** 2) )
         return pi
     
@@ -61,30 +61,23 @@ class GRNN:
                 #calculates the Euclidean distance between x and each row in self.X_train
                 diff = self.X_train - x
                 GRNN.nan_check(diff,'diff from  self.X_train - x')
-                """
-                # not the same as pi_calc - this is the Frobenius norm 
                 distances = np.linalg.norm(diff, axis=1)
-                """
-                distances = np.sum(diff ** 2, axis=1)
                 GRNN.nan_check(distances,'distances from np.linalg.norm(diff, axis=1)')
+
                 #computes the normal distribution's PDF for each distance
-                """
                 try:
                     adj_distances = distances / self.sigma
                     weights = norm.pdf(adj_distances)
                     GRNN.nan_check(weights,'weights')
                 except ValueError as e:
                     print(f"Error: {e}: weights = norm.pdf(distances / self.sigma), sigma={self.sigma}")    
-                """
-                adj_distances = distances / (2 * (self.sigma ** 2))
-                weights = np.exp (-adj_distances)
 
                 if index in check_idx:
                     x_2check=X[index]
                     X_i_2check=self.X_train[0]
-                    dist2_2match=distances[0]
-                    dist2 = GRNN.dist2_calc(x_2check,X_i_2check)
-                    assert np.isclose(dist2,dist2_2match), f'dist2_check failed @ index={index}: check_dist2: {dist2} vs algo_dist2: {dist2_2match}'
+                    adjdist_2match=adj_distances[0]
+                    adjdist = GRNN.adj_dist_calc(x_2check,X_i_2check,self.sigma)
+                    assert np.isclose(adjdist,adjdist_2match), f'adjdist_check failed @ index={index}: check_adjdist: {adjdist} vs algo_adjdist: {adjdist_2match}'
 
                     pi_2match=weights[0]
                     pi = GRNN.pi_calc(x_2check,X_i_2check,self.sigma)
@@ -141,41 +134,6 @@ class GRNNsearch:
         Returns:
         - The best parameter value found.
         """
-        best_param = None
-        best_score = float('-inf')
-
-        while (high - low) > tolerance:
-            mid = (low + high ) / 2
-            score = evaluate_fn(mid)
-            if score > best_score:
-                best_param = mid
-                best_score = score
-            
-            print (f'mid:{mid}={score}')
-
-            # Adjust search range based on comparison of the midpoint score
-            # We assume a unimodal function, so we adjust the range towards the better-performing side
-            if (evaluate_fn(mid + tolerance) > score):
-                low = mid  # Narrow the search to the upper half
-            else:
-                high = mid  # Narrow the search to the lower half
-
-        return best_param       
-      
-
-    def binary2(self, evaluate_fn, low=0.0,high=1.0,tolerance=1e-5):
-        """
-        Perform a binary search to find the optimal hyperparameter.
-        
-        Parameters:
-        - evaluate_fn: Function that takes a parameter and returns a score.
-        - low: The lower bound of the parameter range.
-        - high: The upper bound of the parameter range.
-        - tolerance: How close we want the search to get before stopping.
-        
-        Returns:
-        - The best parameter value found.
-        """
         while (high - low) > tolerance:
             mid1 = low + (high - low) / 3
             mid2 = high - (high - low) / 3
@@ -190,11 +148,7 @@ class GRNNsearch:
             print (f'mid1:{mid1}={score_mid1}')
             print (f'mid2:{mid2}={score_mid2}')
 
-        #don't want to return a parameter we did not value-line from chatgpt code gen
-        #return (low + high) / 2
-        if score_mid1 < score_mid2:
-            return low
-        else:
-            return high
+        return (low + high) / 2
     
 
+    
