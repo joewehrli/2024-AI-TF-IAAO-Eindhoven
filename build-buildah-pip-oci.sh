@@ -11,6 +11,7 @@ geopandas \
 matplotlib \
 seaborn \
 openpyxl \
+optuna \
 "
 
 #tensorflow-cpu=2.10.0 \

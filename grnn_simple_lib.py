@@ -124,6 +124,7 @@ class GRNN:
             print(f'Warning all predications are not non-zero: found {len(np_y_pred) - nz} zero values')
         return np_y_pred
 
+
 class GRNNsearch:
     def __init__(self,):
         __foo=1
@@ -197,4 +198,3 @@ class GRNNsearch:
         else:
             return high
     
-

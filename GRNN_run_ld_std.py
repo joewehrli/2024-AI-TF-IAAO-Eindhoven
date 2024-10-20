@@ -1,7 +1,7 @@
 #simple grnn
 import pandas as pd
 import numpy as np
-import grnn_simple_lib as grnn
+import GRNN as grnn
 from sklearn.metrics import r2_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import RobustScaler
@@ -20,7 +20,9 @@ X_train_scaled = scaler.fit_transform(X_train)
 
 ##
 # GRNN linear form data
-ld_grnn_Eindhoven = grnn.GRNN(sigma=0.9874461091817416) #by grid
+# The optimum isotropic sigma is [1.25808421]
+
+ld_grnn_Eindhoven = grnn.GRNN(kernel="RBF", sigma=1.25808421, calibration='None') #by grid
 ld_grnn_Eindhoven.fit(X_train_scaled, y_train)
 
 y_pred_train = ld_grnn_Eindhoven.predict(X_train_scaled)
@@ -105,64 +107,6 @@ y_pred = ld_grnn_Eindhoven.predict(X_test_scaled)
 
 Eindhoven_data_Test = test_combined_grnn_df
 print("GRID mlencoded TEST data GRNN R Squared :", r2_score(  Eindhoven_data_Test[Model_Outcome], y_pred ))
-"""
-
-
-
-import optuna
-from sklearn.metrics import mean_squared_error
-
-y_true = Eindhoven_data_Test[Model_Outcome].to_numpy()
-
-# Define the objective function for Optuna
-def objective(trial):
-    # Suggest values for sigma within a given range
-    sigma = trial.suggest_float("sigma", 0.001, 1.001)
-    
-    # Initialize the GRNN model with the suggested sigma
-    ld_grnn_Eindhoven = grnn.GRNN(sigma=sigma)
-    ld_grnn_Eindhoven.fit(X_train_scaled, y_train)
-    
-    # Predict on test set
-    y_pred_eval = ld_grnn_Eindhoven.predict(X_test_scaled)
-    
-    # Calculate mean squared error
-    mse = mean_squared_error(y_true, y_pred_eval)
-    
-    return mse
-
-# Create the study and optimize
-study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials=150)  # You can adjust the number of trials as needed
-
-# Get the best sigma from the study
-best_sigma = study.best_params['sigma']
-print("Best sigma:", best_sigma)
-
-# Train the final GRNN model with the best sigma
-ld_grnn_Eindhoven = grnn.GRNN(sigma=best_sigma)
-ld_grnn_Eindhoven.fit(X_train_scaled, y_train)
-y_pred = ld_grnn_Eindhoven.predict(X_train_scaled)
-r2 = r2_score(Eindhoven_data_Train[Model_Outcome], y_pred)
-print("Linear TRAIN data GRNN R Squared:", r2)
-
-# Predict on test set and calculate R-squared
-y_pred = ld_grnn_Eindhoven.predict(X_test_scaled)
-Eindhoven_data_Test = test_combined_grnn_df
-r2 = r2_score(Eindhoven_data_Test[Model_Outcome], y_pred)
-print("Linear TEST data GRNN R Squared:", r2)
-
-"""
-[I 2024-10-20 03:56:03,688] Trial 149 finished with value: 15995536113.285433 and parameters: {'sigma': 0.9649595632889145}. Best is trial 123 with value: 15994235287.454062.
-Best sigma: 0.9871026900414117
-mlencoded TRAIN data GRNN R Squared: 0.9236145595152525
-Linear TEST data GRNN R Squared: 0.6975284164331006
-"""
-
-"""
-from optuna/100
-Best sigma: 0.9874461091817416
-Linear TEST data GRNN R Squared: 0.6975284132350315
 """
 
 """
